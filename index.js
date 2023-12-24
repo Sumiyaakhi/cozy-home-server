@@ -6,9 +6,14 @@ const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
-app.use(cors());
 app.use(express.json())
-
+app.use(cors({
+    origin:[
+      // 'http://localhost:5173' ,
+      "https://cozy-home-server.vercel.app/"
+    ],
+    credentials: true
+  }))
 
 
 
@@ -30,6 +35,7 @@ async function run() {
 
     const database = client.db("cozyHomeDB");
  const productsCollection = database.collection("products");
+ const cartsCollection = database.collection("carts");
 
 
 app.get('/products',async (req,res) =>{
@@ -44,6 +50,16 @@ app.get('/products/:id' , async(req ,res)=>{
      res.send(result)
    })
 
+   app.post('/carts', async(req,res)=>{
+    const product = req.body;
+    const result= await cartsCollection.insertOne(product)
+    res.send(result) 
+   })
+
+   app.get('/carts',async(req,res)=>{
+    const result = await cartsCollection.find().toArray();
+    res.send(result);
+   })
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
